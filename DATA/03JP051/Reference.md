@@ -8,7 +8,7 @@ Source:
 
 Kuwabara (2005)
 
-Citation:
+Citation: https://doi.org/10.4116/jaqua.44.131
 
 If you use this data in any way, please cite the original publication as follows:
 
