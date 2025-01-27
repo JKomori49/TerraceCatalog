@@ -6,7 +6,7 @@ This repository includes data used for research and reference purposes. The rese
 
 Source:
 
-Mclnelly and Kelsey (1990)
+McInelly and Kelsey (1990)
 
 DOI: https://doi.org/10.1029/JB095iB05p06699
 
@@ -14,7 +14,7 @@ Citation:
 
 If you use this data in any way, please cite the original publication as follows:
 
-Mclnelly G. W., Kelsey H. M. (1990). Late Quaternary tectonic deformation in the Cape Arago-Bandon Region of coastal Oregon as deduced from wave-cut platforms.Journal of Geophysical Research: Solid Earth, 95(B5), 6699–6713.
+McInelly G. W., Kelsey H. M. (1990). Late Quaternary tectonic deformation in the Cape Arago-Bandon Region of coastal Oregon as deduced from wave-cut platforms.Journal of Geophysical Research: Solid Earth, 95(B5), 6699–6713.
 
 Rights and Permissions:
 
