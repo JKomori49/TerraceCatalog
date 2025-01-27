@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stylized Custom Google Map</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiCzJM2t8WHP__TnIsEU_9051oLx2hVmg"></script>
+  <script>
+    let map;
+    let infoWindow;
+
+    async function initMap() {
+      // Google Mapを初期化
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 35.6895, lng: 139.6917 }, // 東京を中心に表示
+        zoom: 3, // ズームレベル
+      });
+
+      // 情報ウィンドウを初期化
+      infoWindow = new google.maps.InfoWindow();
+    
+      // read ID list
+      const idListUrl = "https://raw.githubusercontent.com/JKomori49/TerraceCatalog/refs/heads/main/DATA/datalist.dat";
+      const ids = await fetch(idListUrl)
+        .then(response => response.text())
+        .then(text => text.split('\n').map(line => line.trim()).filter(Boolean)) // 空行を除外
+        .catch(error => {
+          console.error("IDリストの読み込みエラー:", error);
+          return [];
+        });
+
+
+
+      ids.forEach(async (id) => {
+        // GitHubのGeoJSONデータのURL
+        const geojsonUrl = `https://raw.githubusercontent.com/JKomori49/TerraceCatalog/refs/heads/main/DATA/${id}/Polygon.geojson`;
+
+        // GeoJSONデータを地図に読み込んで表示
+        fetch(geojsonUrl)
+            .then(response => response.json())
+            .then(data => {
+                // GeoJSONのプロパティデータを取得
+                const dataName = data.name || "Name not found";
+                const collectionLink = `https://github.com/JKomori49/TerraceCatalog/blob/main/DATA/${id}/Polygon.geojson`
+                
+                // 地図にGeoJSONデータを追加
+                map.data.addGeoJson(data);
+
+                // Style function
+                function setDynamicStyle() {
+                    const zoom = map.getZoom(); // Current zoom level
+
+                    map.data.setStyle(function(feature) {
+                        const misid = feature.getProperty("MIS_id");
+                        let color;
+
+                        // タグに応じて色を設定
+                        
+                        if (misid === 1) {
+                            color = '#83cde4'; // 3a 
+                        } else if (misid === 2) {
+                            color = '#a779d0'; // 3c
+                        } else if (misid === 3) {
+                            color = '#3fc956'; // 3e
+                        } else if (misid === 4) {
+                            color = '#dc108b'; // 5a
+                        } else if (misid === 5) {
+                            color = '#5117d6'; // 5c
+                        } else if (misid === 6) {
+                            color = '#e94664'; // 5e
+                        } else if (misid === 7) {
+                            color = '#b5c80f'; // 7a
+                        } else if (misid === 8) {
+                            color = '#68d692'; // 7c
+                        } else if (misid === 9) {
+                            color = '#bde665'; // 7e
+                        } else if (misid === 10) {
+                            color = '#73d16e'; // 9a
+                        } else if (misid === 11) {
+                            color = '#de4de3'; // 9c
+                        } else if (misid === 12) {
+                            color = '#df79cc'; // 9e
+                        } else if (misid === 13) {
+                            color = '#ea4889'; // 11a
+                        } else if (misid === 14) {
+                            color = '#3fe7a4'; // 11c
+                        } else if (misid === 15) {
+                            color = '#717ee4'; // 11e
+                        } else if (misid === 16) {
+                            color = '#66d9c4'; // 13a
+                        } else if (misid === 17) {
+                            color = '#d0a756'; // 13c
+                        } else if (misid === 18) {
+                            color = '#7de65a'; // 13e
+                        } else if (misid === 19) {
+                            color = '#b06ac8'; // 15a
+                        } else if (misid === 20) {
+                            color = '#6f97e7'; // 15c
+                        } else if (misid === 21) {
+                            color = '#23dce2'; // 15e
+                        } else if (misid === 80) {
+                            color = '#eb852b'; // Holocene
+                        } else if (misid === 90) {
+                            color = '#e8d758'; // undated1
+                        } else if (misid === 91) {
+                            color = '#0f89ed'; // undated2
+                        } else if (misid === 92) {
+                            color = '#2e1ae0'; // undated3
+                        } else if (misid === 93) {
+                            color = '#da4b46'; // undated4
+                        } else if (misid === 94) {
+                            color = '#ce7f64'; // undated5
+                        } else if (misid === 95) {
+                            color = '#a9e376'; // undated6
+                        } else {
+                            color = '#FF0000'; // デフォルトの赤色
+                        };
+
+                        let strokeColor, strokeWeight;
+                        if (zoom < 10) {
+                        strokeColor = '#FF0000';
+                        strokeWeight = 1;
+                        } else {
+                        strokeColor = '#000000';
+                        strokeWeight = 0.2;
+                        }
+
+
+                        // スタイルを返す
+                        return {
+                        fillColor: color, // 塗りつぶし色
+                        fillOpacity: 0.6, // 塗りつぶしの透明度
+                        strokeColor: strokeColor, // 境界線の色
+                        strokeWeight: strokeWeight // 境界線の太さ
+                        };
+                    });
+                    }
+
+                    // 初期スタイルを設定
+                    setDynamicStyle();
+
+                    // ズーム変更時にスタイルを更新
+                    map.addListener('zoom_changed', setDynamicStyle);
+
+
+
+                // データセットごとにクリックイベントを設定
+                map.data.addListener("click", function (event) {
+                    
+                // クリックされたフィーチャがこのデータセットのものであるかを確認
+                if (event.feature.getProperty("dataset_id") !== id) {
+                    return; // このデータセットに属さないフィーチャは無視
+                }
+                    
+
+                // クリックされたポリゴンの座標を取得
+                const clickPosition = event.latLng;
+
+                // 情報ウィンドウのHTMLコンテンツを作成
+                const content = `
+                    <div style="font-size: 14px;">
+                    <strong>${dataName}</strong><br>
+                    <a href="${collectionLink}" target="_blank">GitHub page</a>
+                    </div>
+                `;
+
+                // 情報ウィンドウを表示
+                infoWindow.setContent(content);
+                infoWindow.setPosition(clickPosition);
+                infoWindow.open(map);
+                });
+            
+      })
+    })
+    }
+
+    // ページ読み込み時に地図を初期化
+    window.onload = initMap;
+  </script>
+</head>
+<body onload="initMap()">
+  <div id="map" style="width: 100%; height: 500px;"></div>
+</body>
+</html>
